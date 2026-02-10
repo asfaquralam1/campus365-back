@@ -19,4 +19,4 @@ Route::get('/', function () {
 });
 
 
-Route::resource('usesrs',UserController::class);
+Route::resource('users',UserController::class);

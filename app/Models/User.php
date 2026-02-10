@@ -17,10 +17,16 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+
+    protected $primaryKey = 'uid';
+    public $incrementing = true; // uid auto increment হলে
+    protected $keyType = 'int'; // uid integer হলে
+
     protected $fillable = [
-        'name',
+        'uid',
+        'first_name',
         'email',
-        'password',
+        'password_hash',
     ];
 
     /**
@@ -29,7 +35,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
     ];
 
@@ -40,6 +46,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'password_hash' => 'hashed',
     ];
 }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Nette\Utils\Json;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -18,19 +18,27 @@ class UserController extends Controller
         ]);
     }
 
+    public function create(){
+        return view('create');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password_hash' => 'required|string|min:8',
         ]);
 
         $user = User::create([
-            'uid' => uniqid(),
-            'name' => $validated['name'],
+            'uid' => (string) Str::uuid(),
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated(['last_name']),
+            'role' => "STUDENT",
+            "status"=>"active",
             'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
+            'password_hash' => Hash::make($validated['password_hash']),
         ]);
 
         return response()->json([
@@ -75,8 +83,10 @@ class UserController extends Controller
 
         $user = User::where('uid', $id)->firstOrFail();
 
-        if (isset($validated['password'])) {
+        if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
         }
 
         $user->update($validated);
