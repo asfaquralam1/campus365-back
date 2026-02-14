@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -11,34 +12,40 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = DB::table('users')->get();
         return response()->json([
             "message" => 'success',
             "data" => $users
         ]);
     }
 
-    public function create(){
+    public function create()
+    {
         return view('create');
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'first_name'   => 'required|string|max:255',
+            'last_name'    => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
             'password_hash' => 'required|string|min:8',
+            'role'         => 'required|string',
+            'is_active'    => 'required|boolean',
+            'is_verified'  => 'required|boolean'
         ]);
 
         $user = User::create([
             'uid' => (string) Str::uuid(),
             'first_name' => $validated['first_name'],
-            'last_name' => $validated(['last_name']),
-            'role' => "STUDENT",
-            "status"=>"active",
+            'last_name' => $validated['last_name'],
+            'username' => $request->username,
             'email' => $validated['email'],
             'password_hash' => Hash::make($validated['password_hash']),
+            'role' => "STUDENT",
+            "is_active" => "true",
+            "is_verified" => "true",
         ]);
 
         return response()->json([
@@ -59,7 +66,7 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user = User::where('uid', $id)->first();
+        $user = User::where('uid', $id)->firstOrFail();
 
         if (!$user) {
             return response()->json([
@@ -76,9 +83,13 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id . ',uid',
-            'password' => 'required|string|min:8',
+            'first_name'   => 'required|string|max:255',
+            'last_name'    => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
+            'password_hash' => 'required|string|min:8',
+            'role'         => 'required|string',
+            'is_active'    => 'required|boolean',
+            'is_verified'  => 'required|boolean'
         ]);
 
         $user = User::where('uid', $id)->firstOrFail();
@@ -95,5 +106,9 @@ class UserController extends Controller
             'message' => 'User updated successfully',
             'data' => $user
         ]);
+    }
+
+    public function delete(){
+        
     }
 }

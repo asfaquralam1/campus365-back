@@ -35,12 +35,21 @@
         </div>
 
         <div>
+            <label>Username</label>
+            <input type="username" name="username" value="{{ old('username') }}">
+            @error('username')
+                <small style="color:red">{{ $message }}</small>
+            @enderror
+        </div>
+
+        <div>
             <label>Email</label>
             <input type="email" name="email" value="{{ old('email') }}">
             @error('email')
                 <small style="color:red">{{ $message }}</small>
             @enderror
         </div>
+        
 
         <div>
             <label>Password</label>
